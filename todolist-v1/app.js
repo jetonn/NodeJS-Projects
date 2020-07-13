@@ -10,6 +10,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
 let items = ["Run", "Code"]; // This contains all the new items added on the todo list
+let workItems = [];
 
 app.get("/", function(req, res){
   let today = new Date();
@@ -23,17 +24,32 @@ app.get("/", function(req, res){
   // Save the date as "Day Name #, Month Name" in a variable
   let day = today.toLocaleDateString("en-US", options);
   // Pass the data to the "list.ejs" file
-  res.render("list", {kindOfDay: day, itemsArray: items});
+  res.render("list", {listTitle: day, itemsArray: items});
 
 });
 
 app.post("/", function(req, res){
   item = req.body.todoItem;
+  if (req.body.list === "Work") {
+    workItems.push(item);
+    res.redirect("/work");
+  } else {
+    items.push(item);
+    res.redirect("/");
+  }
 
-  items.push(item);
-  res.redirect("/");
 });
 
-app.listen(3000, function(){
-  console.log("Server started on port 3000");
+app.get("/work", function(req, res){
+  res.render("list", {listTitle: "Work List", itemsArray: workItems});
+});
+
+app.post("/work", function(req, res){
+  let item = req.body.todoItem;
+  workItems.push(item);
+  res.redirect("/work");
+});
+
+app.listen(8000, function(){
+  console.log("Server started on port 8000");
 });
